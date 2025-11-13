@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+*.dist-info/
+*.log
+.Python
+env/
+venv/
+.venv/
+pip-wheel-metadata/
+
+# FastAPI / Backend
+backend/.env
+backend/venv/
+backend/.venv/
+backend/__pycache__/
+backend/.mypy_cache/
+backend/.pytest_cache/
+backend/.ruff_cache/
+backend/app/__pycache__/
+
+# Node / Frontend
+frontend/node_modules/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/dist/
+frontend/.vite/
+
+# macOS / Linux
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor configs
+.idea/
+.vscode/
+*.swp
+*.swo
+

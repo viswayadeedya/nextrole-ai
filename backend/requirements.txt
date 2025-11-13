@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+langgraph
+langchain
+langchain-openai
+langchain-community
+tavily-python
+pymongo
+python-dotenv
+beautifulsoup4
+pydantic>=2.12,<3
+langchain-tavily
+
