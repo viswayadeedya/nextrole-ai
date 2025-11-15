@@ -1,45 +1,58 @@
-# Python
-__pycache__/
-*.py[cod]
-*.so
-*.egg
-*.egg-info/
-*.dist-info/
-*.log
-.Python
-env/
+# -------------------------
+# Python / Backend
+# -------------------------
+
+# Virtual environments
 venv/
-.venv/
-pip-wheel-metadata/
+__pycache__/
+*.pyc
 
-# FastAPI / Backend
-backend/.env
-backend/venv/
-backend/.venv/
-backend/__pycache__/
-backend/.mypy_cache/
-backend/.pytest_cache/
-backend/.ruff_cache/
-backend/app/__pycache__/
+# Environment variables
+.env
+*.env
 
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Local logs / temp
+*.log
+
+# Elastic Beanstalk build artifact
+deployment-package.zip
+
+# Backend static files (frontend build output)
+backend/app/static/*
+!backend/app/static/.gitkeep
+
+# -------------------------
 # Node / Frontend
+# -------------------------
+
+# Node modules
 frontend/node_modules/
-frontend/.env
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
+node_modules/
+
+# Frontend build files
 frontend/dist/
-frontend/.vite/
 
-# macOS / Linux
+# Vite local and cache
+*.local
+.cache/
+.parcel-cache/
+
+# -------------------------
+# OS / Editor
+# -------------------------
+
+# macOS
 .DS_Store
-.AppleDouble
-.LSOverride
 
-# Editor configs
-.idea/
+# VS Code
 .vscode/
-*.swp
-*.swo
+.history/
 
+# Misc temp
+*.tmp
+*.swp

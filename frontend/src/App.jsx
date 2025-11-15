@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import './App.css'
 
+const API_BASE_URL = import.meta.env.DEV ? 'http://127.0.0.1:8000' : ''
+
 function App() {
   const [jobTitle, setJobTitle] = useState('')
   const [experience, setExperience] = useState('0-2 years')
@@ -18,7 +20,7 @@ function App() {
 
     const interval = setInterval(async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/search-jobs/${searchId}`)
+        const response = await axios.get(`${API_BASE_URL}/api/search-jobs/${searchId}`)
         const data = response.data
         setStatus(data.status || '')
 
@@ -55,7 +57,7 @@ function App() {
         location,
         time_filter: timeFilter,
       }
-      const response = await axios.post('http://127.0.0.1:8000/api/search-jobs', payload)
+      const response = await axios.post(`${API_BASE_URL}/api/search-jobs`, payload)
       const data = response.data
       setSearchId(data.search_query_id)
     } catch (submitError) {
