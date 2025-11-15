@@ -1,8 +1,11 @@
 import logging
+import os
 
 from bson import ObjectId
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from .agent import run_agent_pipeline
 from .database import get_database
@@ -20,20 +23,42 @@ logger = logging.getLogger("job-intel-api")
 
 app = FastAPI(title="Job Intel Agent API")
 
+origins = [
+    "http://localhost:5174",  # For local development
+]
+
+# For production, you'll set this environment variable in Elastic Beanstalk
+app_url = os.getenv("APP_URL")
+if app_url:
+    origins.append(app_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.mount("/assets", StaticFiles(directory="app/static/assets"), name="assets")
+
+# Log critical environment variables at startup
+env_vars_to_check = [
+    "MONGODB_URI",
+    "MONGODB_DB_NAME",
+    "OPENAI_API_KEY",
+    "TAVILY_API_KEY",
+]
+
+for var in env_vars_to_check:
+    value = os.getenv(var)
+    if value:
+        logger.info("%s is set.", var)
+    else:
+        logger.warning("%s is NOT set. Backend functionality may be degraded.", var)
+
 db = get_database()
 
-
-@app.get("/")
-async def root():
-    return {"message": "Job Intel Agent API"}
 
 
 @app.post("/api/search-jobs", response_model=SearchResponse)
@@ -110,4 +135,9 @@ async def get_search_status(search_query_id: str):
         )
 
     return StatusResponse(status=status_value, failed_urls=failed_urls or None)
+
+
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    return FileResponse("app/static/index.html")
 
