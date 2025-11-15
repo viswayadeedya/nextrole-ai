@@ -1,6 +1,7 @@
 <div align="center">
   <h1>NextRole AI</h1>
   <p>AI-assisted job intelligence that researches open roles, parses postings, and summarizes market insights for you.</p>
+  **▶️ https://youtu.be/5_i0WGJUy88**
 </div>
 
 ---
@@ -96,6 +97,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 MONGODB_URI=your_mongodb_connection_string_here
 MONGODB_DB_NAME=your_database_name_here
 OPENAI_MODEL=gpt-4o-mini  # Optional override
+APP_URL = "" #for deployment purposes
 ```
 
 ### 3. Backend Setup
@@ -167,23 +169,38 @@ Because the agent uses LangGraph, you can add new nodes (e.g., deduplication, re
 
 ## Troubleshooting
 
-| Issue | Possible Fix |
-|-------|--------------|
-| `Import "fastapi" could not be resolved` | Ensure the backend virtualenv is activated and dependencies installed. |
-| 404 when polling search ID | Confirm the insert step succeeded (check backend logs for Mongo errors). |
-| Empty results / "No job postings available" | Verify Tavily API quota, consider adjusting filters or time range. |
-| LLM context errors | The agent truncates content to ~15k chars but you can reduce `page_content` slice further if necessary. |
-| Mongo auth failures | Revisit `MONGODB_URI`/`MONGODB_DB_NAME` values in `.env`. |
+| Issue                                       | Possible Fix                                                                                            |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `Import "fastapi" could not be resolved`    | Ensure the backend virtualenv is activated and dependencies installed.                                  |
+| 404 when polling search ID                  | Confirm the insert step succeeded (check backend logs for Mongo errors).                                |
+| Empty results / "No job postings available" | Verify Tavily API quota, consider adjusting filters or time range.                                      |
+| LLM context errors                          | The agent truncates content to ~15k chars but you can reduce `page_content` slice further if necessary. |
+| Mongo auth failures                         | Revisit `MONGODB_URI`/`MONGODB_DB_NAME` values in `.env`.                                               |
 
 ---
 
-| Issue | Possible Fix |
-|-------|--------------|
-| `Import "fastapi" could not be resolved` | Ensure the backend virtualenv is activated and dependencies installed. |
-| 404 when polling search ID | Confirm the insert step succeeded (check backend logs for Mongo errors). |
-| Empty results / "No job postings available" | Verify Tavily API quota, consider adjusting filters or time range. |
+| Issue                                         | Possible Fix                                                                                                                                                                                                                                   |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Import "fastapi" could not be resolved`      | Ensure the backend virtualenv is activated and dependencies installed.                                                                                                                                                                         |
+| 404 when polling search ID                    | Confirm the insert step succeeded (check backend logs for Mongo errors).                                                                                                                                                                       |
+| Empty results / "No job postings available"   | Verify Tavily API quota, consider adjusting filters or time range.                                                                                                                                                                             |
 | **"Past 24 hours" filter returns older jobs** | **This is an expected limitation. Search engines may not have a real-time index for sites like LinkedIn that have different content for logged-in users. The time filter is a "best effort" and will be more accurate for public job boards.** |
-| LLM context errors | The agent truncates content to ~15k chars but you can reduce `page_content` slice further if necessary. |
+| LLM context errors                            | The agent truncates content to ~15k chars but you can reduce `page_content` slice further if necessary.                                                                                                                                        |
 
 Happy hiring (or job hunting)! 🎯
 
+## How It Works: The Agent Pipeline
+
+The core of NextRole AI is a multi-agent system orchestrated by LangGraph. When a search is submitted, it kicks off a stateful workflow where specialized agents collaborate to find and process information.
+
+1.  **Planner Agent:** The process begins here. This agent takes the user's input (job title, experience, location) and formulates a precise, strategic search query, including filters for job boards and time.
+
+2.  **Search Agent:** Using the plan, this agent connects to the **Tavily API** to execute the web search. It retrieves a list of relevant URLs along with pre-processed page content.
+
+3.  **Refiner Agent (The Self-Correction Loop):** This is where the system's intelligence shines. If the initial search yields too few results, LangGraph routes the workflow to this agent. It improves the query by adding keywords like "remote" or "startup" and sends it **back to the Search Agent** for another attempt. This loop ensures the agent is resilient and doesn't give up easily.
+
+4.  **Parsing Agent:** Once a sufficient number of results are found, this agent acts as a quality control expert. It uses an LLM to analyze each page to verify it's a single, active job posting (filtering out articles, lists, or closed positions). If valid, it extracts key data like title, company, location, and the apply link into a structured format.
+
+5.  **Analysis Agent:** With a clean list of verified jobs, this final agent synthesizes the data. It identifies the top skills and tech stacks mentioned across all postings and generates a concise market summary.
+
+This entire process, from planning to analysis, is autonomous, stateful, and designed to turn the unstructured chaos of the web into structured, actionable intelligence.
